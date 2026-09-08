@@ -54,7 +54,7 @@ It costs nothing. Take it, use it on your music, give it to your friends.
 
 ## Installation
 
-### Option A — Download a build (if one is attached to this release)
+### Download a build
 
 1. Grab `DeathEngine.vst3` from the [Releases](../../releases) page.
 2. Copy it into:
@@ -65,32 +65,6 @@ It costs nothing. Take it, use it on your music, give it to your friends.
 
 There's also a **standalone `.exe`** in the release if you just want to plug in
 a guitar and play without opening a DAW at all.
-
-### Option B — Build it yourself (always works, takes a few minutes)
-
-You need **Visual Studio 2022** (Community is fine — grab the *Desktop
-development with C++* workload) and **CMake 3.22+**. Both are free.
-
-```powershell
-git clone --recurse-submodules https://github.com/<your-username>/DeathEngine.git
-cd DeathEngine
-./build.ps1
-```
-
-That fetches JUCE if it isn't already there, builds everything, and runs the
-test suite. First build takes a few minutes because it's compiling JUCE from
-scratch; every build after that takes seconds.
-
-```
-build/DeathEngine_artefacts/Release/VST3/DeathEngine.vst3
-build/DeathEngine_artefacts/Release/Standalone/DeathEngine.exe
-```
-
-To install the VST3 automatically (needs admin):
-
-```powershell
-./build.ps1 -Install
-```
 
 Windows only for now — everything is written against JUCE's cross-platform
 audio/GUI layer, so a Mac/Linux port is mostly a matter of someone building it
@@ -155,7 +129,7 @@ the low end stays locked in place while the highs stay controlled — which is m
 of why this style of tone stays enormous without collapsing into mud.
 
 Full technical breakdown of every control, every DSP decision, and why things
-were built the way they were: **[docs/TECHNICAL.md](docs/TECHNICAL.md)**.
+were built the way they were: **[TECHNICAL.md](TECHNICAL.md)**.
 
 ---
 
@@ -163,8 +137,7 @@ were built the way they were: **[docs/TECHNICAL.md](docs/TECHNICAL.md)**.
 
 - Windows 10/11, 64-bit
 - A VST3 host (or use the standalone app)
-- Any CPU from the last decade or so. AVX2 is on by default for speed — if
-  you're on genuinely old hardware, build with `-DDE_ENABLE_AVX2=OFF`
+- Any CPU from the last decade or so. AVX2 is on by default for speed
 
 ---
 
@@ -182,9 +155,7 @@ license. If you just want to play guitar through it, none of this matters —
 download it and go.
 
 The four cabinet IRs and the chainsaw sample embedded in the plugin are included
-for use within DeathEngine. The `Bogren Digital Rhythm IR Downtuned` folder in
-this repo is third-party licensed content used only for local testing — it is
-**not** built into the plugin and shouldn't be redistributed separately.
+for use within DeathEngine.
 
 ---
 
@@ -194,10 +165,6 @@ Bug reports, preset submissions, and pull requests are all welcome. If you build
 a genuinely great preset, open a PR — the goal is for this to become a real
 community resource, not just what one person's ears like.
 
-If you're changing DSP code, please run the test suite first
-(`./build.ps1` runs it automatically) — there are 250+ automated checks covering
-every module, and a change that breaks one is usually a real bug, not a test
-that needs updating.
 
 ---
 
