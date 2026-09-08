@@ -31,38 +31,7 @@ categories, and you can save your own.
 
 ---
 
-## Build it
-
-You need **Visual Studio 2022** with the *Desktop development with C++* workload,
-and **CMake 3.22+**. Both are free.
-
-From this folder, in PowerShell:
-
-```powershell
-./build.ps1
-```
-
-That configures, builds Release, runs both test suites, and tells you where the
-VST3 landed. First build takes a few minutes (it compiles all of JUCE); later
-builds take seconds.
-
-If you'd rather do it by hand:
-
-```bash
-cmake -B build -G "Visual Studio 17 2022" -A x64
-cmake --build build --config Release
-```
-
-### Where the plugin ends up
-
-```
-build/DeathEngine_artefacts/Release/VST3/DeathEngine.vst3
-build/DeathEngine_artefacts/Release/Standalone/DeathEngine.exe
-```
-
 To install it, copy the `.vst3` folder into `C:\Program Files\Common Files\VST3`.
-That needs admin rights, which is why the build does not do it automatically —
-`build.ps1 -Install` will do it and prompt for elevation.
 
 The standalone `.exe` needs no installation. Run it, hit **Options → Audio/MIDI
 Settings**, pick your interface, and play.
@@ -85,7 +54,7 @@ move them together anyway.
 
 - **0%** — transparent, the amp sees your full low end
 - **35%** — classic TS-in-front tightness
-- **70%** — Vildhjarta-grade chug separation
+- **70%** — Vildhjarta-esk chug separation
 - **100%** — clinical, percussive, almost gated-sounding attack
 
 ### Definition
@@ -170,7 +139,7 @@ verified in the test suite.
 
 ### ARGENT
 
-A voicing, not a "sound like someone else" button. It applies a fixed set of
+A voicing, not a "sound like Mick" button. It applies a fixed set of
 offsets on top of whatever you have dialled in, pushing the whole chain toward the
 industrial end: more weight underneath, less mid, a much dirtier power amp, the
 cab resonance moved down, and the low band clamped hard so all that weight stays
@@ -205,7 +174,7 @@ a narrow band around 3 kHz so the attack survives the amp's own compression. Tha
 last part is what separates it from a screamer: a screamer humps the mids broadly
 around 700 Hz, which reads as "honk"; this reads as "grind".
 
-**CHAINSAW** — a two-stroke engine keyed to your right hand, from the embedded
+**CHAINSAW** — a two-stroke engine keyed to your right hand, from an embedded
 loop. Two things stop it sounding like a sound effect pasted over a guitar.
 
 **Track** stops it droning: the saw only speaks while you play, and it revs
@@ -294,16 +263,11 @@ Each slot picks independently from:
 IRs are trimmed, normalised, resampled to the session rate and capped at 4096
 samples. User IR paths are saved with the session and with user presets.
 
-> The `Bogren Digital Rhythm IR Downtuned` folder in this directory is third-party
-> licensed content, used here for testing, and is deliberately **not** embedded.
-> Only the four IRs and the chainsaw loop from `IRs&SFX/` ship inside the binary
-> (about 660 KB).
-
 ---
 
 ## Cost
 
-Measured on this machine, one instance, one core, 48 kHz / 512 samples:
+Measured on my pc, one instance, one core, 48 kHz / 512 samples:
 
 | Setting | CPU | Realtime factor |
 |---|---|---|
@@ -319,8 +283,6 @@ Measured on this machine, one instance, one core, 48 kHz / 512 samples:
 All six pedals together cost about **2%** on top of the amp. None of them is
 expensive, and the ones that would be — Grind's clipper — are the only ones that
 run oversampled.
-
-Reproduce with `DeathEngineHostTests.exe`.
 
 Where the savings come from:
 
@@ -345,39 +307,6 @@ phase, no IIR ringing, 65 samples latency, and roughly double the CPU.
 
 ---
 
-## Tests
-
-```powershell
-cmake --build build --config Release --target DeathEngineTests DeathEngineHostTests
-./build/DeathEngineTests_artefacts/Release/DeathEngineTests.exe
-./build/DeathEngineHostTests_artefacts/Release/DeathEngineHostTests.exe
-```
-
-**DspTests** (131 checks) covers the modules in isolation: waveshaper slope and
-bounds, fast-approximation accuracy, phase vocoder round-trip gain and pitch
-accuracy, clarity engine transparency, limiter ceiling, mono-below, amp stability
-across every voice and gain setting, DC offset, and silence-in-silence-out. For
-the pedals: that Sub really generates the octave below and doesn't drone, that
-Chainsaw stays shut when fully keyed and idle, that Delay's repeat lands on the
-set time with nothing between, that Reverb's tail decays instead of running away,
-that Sit measurably ducks the saw under the guitar, that the reverb can hold its
-own against the dry signal at full Mix, and that Grind and Glitch are **bit-exact**
-when bypassed.
-
-**HostTests** (120 checks) drives the actual `AudioProcessor` the way a host does:
-parameter ranges, latency reporting, bus layouts, all 46 factory presets (every
-one checked for level and stability, plus unique names and no empty category), user
-preset save/load/delete round-trips, every pedal engaged in the full chain, all
-five cab sources, state save/restore, every parameter at both extremes, switching
-quality mid-stream, and the CPU benchmark.
-
-The parameter-range check earned its place immediately: it caught Reverb's
-pre-delay silently returning 0 ms at every knob position, because a log taper on
-a range starting at zero produces a skew of zero, which maps everything to the
-minimum. The control looked and felt completely normal.
-
----
-
 ## Presets
 
 ### Factory
@@ -395,10 +324,6 @@ pick a category and hover.
 | **Crazy** | 8 | The experimental end. None of these are subtle |
 | **Bass** | 5 | Same engine, very different voicing, for bass DI |
 
-Nothing is named after a band, an album or a person — partly so this can be given
-away without anyone having to think about it, and partly because "Dissonant Fog"
-tells you more about what you are about to hear than a band name does. They're
-also exposed as host programs, so a DAW's own preset browser sees all 46.
 
 Most of them use the pedals: `Hell Gate` and `Machine Room` run the chainsaw
 under the riff, `Titan Step` and `Sub Terror` lean on the octave divider,
@@ -438,15 +363,14 @@ and any user IR paths.
 - **Stereo width is manufactured.** A DI is mono. The doubler is a real second
   "take" (20–26 ms delay with its own drift and tone), not a Haas trick, and
   everything below **Mono Below** is forced back to mono, because wide low end is
-  the fastest way to make a heavy mix fall apart.
+  the fastest way to make a heavy mix fall apart. (If you're using a VST guitar/bass, turn off width to get their actual stereo trough)
 - **The Sub only tracks one note.** It is a divider, not a polyphonic tracker —
   on a chord it picks something and holds it. That is the right trade for what it
   is for (weight under single-note chugs), but it is not a pitch shifter.
 - **Glitch is deterministic.** Its RNG is seeded identically every time, so a
   render is reproducible — but two instances with the same settings will glitch
   in the same places.
-- **`/arch:AVX2` is on by default** (2013+ CPUs). Turn it off with
-  `-DDE_ENABLE_AVX2=OFF` if you need to run on older hardware.
+- **`/arch:AVX2` is on by default** (2013+ CPUs). 
 - **JUCE licensing.** This builds against JUCE under its default terms with the
   splash screen enabled. If you want to remove it or ship this commercially, check
   the JUCE licence first — that is a decision about your project, not a build flag
